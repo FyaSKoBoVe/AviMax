@@ -19,7 +19,6 @@ Desktop video editor for cutting, merging, and converting videos.
 
 - Python 3.11+
 - FFmpeg (must be installed on system)
-- FFprobe (for video metadata)
 
 ### Installing FFmpeg
 
@@ -44,8 +43,8 @@ git clone https://github.com/yourusername/avimax.git
 cd avimax
 
 # Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dependencies
 pip install -e .
@@ -85,13 +84,11 @@ pip install -e ".[packaging]"
 
 # Build with PyInstaller
 pyinstaller cutflow.spec --clean
-
-# Or use the build script
-./scripts/build.sh  # Linux/macOS
-scripts\build.bat   # Windows
 ```
 
 The executable will be in `dist/CutFlow`.
+
+**Note:** The built executable requires FFmpeg to be installed on the target system.
 
 ## Tech Stack
 
