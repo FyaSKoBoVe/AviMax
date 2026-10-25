@@ -1,19 +1,18 @@
 """Main window for CutFlow"""
 
-from PySide6.QtWidgets import (
-    QMainWindow,
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QMenuBar,
-    QToolBar,
-    QStatusBar,
-    QSplitter,
-)
 from PySide6.QtCore import Qt
-from pathlib import Path
+from PySide6.QtWidgets import (
+    QHBoxLayout,
+    QMainWindow,
+    QSplitter,
+    QToolBar,
+    QVBoxLayout,
+    QWidget,
+)
 
 from cutflow.ui.styles.theme_manager import ThemeManager
+from cutflow.ui.widgets.player_widget import PlayerWidget
+from cutflow.ui.widgets.timeline_widget import TimelineWidget
 from cutflow.viewmodels.project_viewmodel import ProjectViewModel
 from cutflow.viewmodels.player_viewmodel import PlayerViewModel
 from cutflow.viewmodels.export_viewmodel import ExportViewModel
@@ -83,15 +82,15 @@ class MainWindow(QMainWindow):
         right_panel = QWidget()
         right_layout = QVBoxLayout(right_panel)
 
-        # Placeholder for player widget
-        player_placeholder = QWidget()
-        player_placeholder.setMinimumHeight(400)
-        right_layout.addWidget(player_placeholder)
+        # Player widget
+        self._player_widget = PlayerWidget()
+        self._player_widget.setMinimumHeight(400)
+        right_layout.addWidget(self._player_widget)
 
-        # Placeholder for timeline widget
-        timeline_placeholder = QWidget()
-        timeline_placeholder.setMinimumHeight(200)
-        right_layout.addWidget(timeline_placeholder)
+        # Timeline widget
+        self._timeline_widget = TimelineWidget()
+        self._timeline_widget.setMinimumHeight(200)
+        right_layout.addWidget(self._timeline_widget)
 
         splitter.addWidget(left_panel)
         splitter.addWidget(right_panel)
@@ -151,10 +150,21 @@ class MainWindow(QMainWindow):
 
     def _connect_signals(self) -> None:
         """Connect viewmodel signals"""
+        self._player_vm.set_player_widget(self._player_widget)
+        self._player_vm.position_changed.connect(self._on_player_position_changed)
+        self._player_vm.duration_changed.connect(self._on_player_duration_changed)
         self._project_vm.clip_added.connect(self._on_clip_added)
         self._project_vm.clip_removed.connect(self._on_clip_removed)
         self._project_vm.can_undo_changed.connect(self._on_can_undo_changed)
         self._project_vm.can_redo_changed.connect(self._on_can_redo_changed)
+
+    def _on_player_position_changed(self, position: float) -> None:
+        """Handle player position changed"""
+        self._timeline_widget.set_position(position)
+
+    def _on_player_duration_changed(self, duration: float) -> None:
+        """Handle player duration changed"""
+        self._timeline_widget.set_duration(duration)
 
     def _on_clip_added(self, clip) -> None:
         """Handle clip added"""

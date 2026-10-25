@@ -11,13 +11,19 @@ class FilterType(Enum):
     SATURATION = "saturation"
     HUE = "hue"
     GAMMA = "gamma"
+    CROP = "crop"
+    RESIZE = "resize"
+    ROTATE = "rotate"
+    FADE_IN = "fade_in"
+    FADE_OUT = "fade_out"
+    VOLUME = "volume"
 
 
 @dataclass
 class Filter:
     """Video filter with parameters"""
     type: FilterType
-    value: float  # -100 to 100 for most filters
+    value: float | str  # -100 to 100 for most filters, string for complex filters
     enabled: bool = True
 
 
@@ -52,19 +58,43 @@ class FilterChain:
                 continue
 
             if f.type == FilterType.BRIGHTNESS:
-                # eq=brightness=<value>
-                filter_parts.append(f"eq=brightness={f.value / 100}")
+                if isinstance(f.value, float):
+                    filter_parts.append(f"eq=brightness={f.value / 100}")
             elif f.type == FilterType.CONTRAST:
-                # eq=contrast=<value>
-                filter_parts.append(f"eq=contrast={1 + f.value / 100}")
+                if isinstance(f.value, float):
+                    filter_parts.append(f"eq=contrast={1 + f.value / 100}")
             elif f.type == FilterType.SATURATION:
-                # eq=saturation=<value>
-                filter_parts.append(f"eq=saturation={1 + f.value / 100}")
+                if isinstance(f.value, float):
+                    filter_parts.append(f"eq=saturation={1 + f.value / 100}")
             elif f.type == FilterType.HUE:
-                # eq=hue=<value>
-                filter_parts.append(f"eq=hue={f.value / 100}")
+                if isinstance(f.value, float):
+                    filter_parts.append(f"eq=hue={f.value / 100}")
             elif f.type == FilterType.GAMMA:
-                # eq=gamma=<value>
-                filter_parts.append(f"eq=gamma={1 + f.value / 100}")
+                if isinstance(f.value, float):
+                    filter_parts.append(f"eq=gamma={1 + f.value / 100}")
+            elif f.type == FilterType.CROP:
+                # value format: "iw:ih:0:0" (width:height:x:y)
+                if isinstance(f.value, str):
+                    filter_parts.append(f"crop={f.value}")
+            elif f.type == FilterType.RESIZE:
+                # value format: "1280:720" (width:height)
+                if isinstance(f.value, str):
+                    filter_parts.append(f"scale={f.value}")
+            elif f.type == FilterType.ROTATE:
+                # value in degrees: "90" or "-90"
+                if isinstance(f.value, (float, str)):
+                    filter_parts.append(f"rotate={f.value}*PI/180")
+            elif f.type == FilterType.FADE_IN:
+                # value format: "t=0:d=1" (start:duration in seconds)
+                if isinstance(f.value, str):
+                    filter_parts.append(f"fade=in:{f.value}")
+            elif f.type == FilterType.FADE_OUT:
+                # value format: "t=9:d=1" (start:duration in seconds)
+                if isinstance(f.value, str):
+                    filter_parts.append(f"fade=out:{f.value}")
+            elif f.type == FilterType.VOLUME:
+                # value in dB: "3dB" or "-3dB"
+                if isinstance(f.value, str):
+                    filter_parts.append(f"volume={f.value}")
 
         return ",".join(filter_parts)

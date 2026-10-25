@@ -39,7 +39,7 @@ Download from https://ffmpeg.org/download.html
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/avimax.git
+git clone https://github.com/yourusername/AviMax.git
 cd avimax
 
 # Create virtual environment
