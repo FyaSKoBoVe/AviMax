@@ -37,6 +37,8 @@ def main() -> int:
         player_vm=deps.player_viewmodel,
         export_vm=deps.export_viewmodel,
         theme_manager=theme_manager,
+        probe_service=deps.probe_service,
+        config_manager=deps.config_manager,
     )
     main_window.show()
 
